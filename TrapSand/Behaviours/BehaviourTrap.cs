@@ -94,6 +94,10 @@ namespace TrapSand.Behaviours
             }
             else
             {
+                if (!hasEntered)
+                {
+                    Game1.instance?.contentManager?.audio?.player?.SandLand?.Play();
+                }
                 direction = Direction.Other;
                 hasEntered = true;
             }
