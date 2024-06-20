@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.10.35013.160
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TrapSand", "TrapSand\TrapSand.csproj", "{8DD94FE8-0BD5-49D8-BD38-F9E34A2C8FEE}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Debug|x64 = Debug|x64
+		Release|Any CPU = Release|Any CPU
+		Release|x64 = Release|x64
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{8DD94FE8-0BD5-49D8-BD38-F9E34A2C8FEE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8DD94FE8-0BD5-49D8-BD38-F9E34A2C8FEE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8DD94FE8-0BD5-49D8-BD38-F9E34A2C8FEE}.Debug|x64.ActiveCfg = Debug|x64
+		{8DD94FE8-0BD5-49D8-BD38-F9E34A2C8FEE}.Debug|x64.Build.0 = Debug|x64
+		{8DD94FE8-0BD5-49D8-BD38-F9E34A2C8FEE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8DD94FE8-0BD5-49D8-BD38-F9E34A2C8FEE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8DD94FE8-0BD5-49D8-BD38-F9E34A2C8FEE}.Release|x64.ActiveCfg = Release|x64
+		{8DD94FE8-0BD5-49D8-BD38-F9E34A2C8FEE}.Release|x64.Build.0 = Release|x64
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {C79A746B-A6F2-4C81-8EBC-2DACF2706D11}
+	EndGlobalSection
+EndGlobal
