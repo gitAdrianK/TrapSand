@@ -46,7 +46,11 @@ namespace TrapSand.Behaviours
         {
             if (info.IsCollidingWith<BlockTrap>() && !hasEntered)
             {
-                return direction == Direction.Top;
+                if (direction == Direction.Top && behaviourContext.BodyComp.Velocity.Y > 0.0f)
+                {
+                    return true;
+                }
+                return false;
             }
             return false;
         }
@@ -105,6 +109,7 @@ namespace TrapSand.Behaviours
             if (hasEntered)
             {
                 bodyComp.Velocity.X *= 0.25f;
+                bodyComp.Velocity.Y = -2.0f;
                 bodyComp.Velocity.Y = Math.Min(0.75f, bodyComp.Velocity.Y);
                 bodyComp.Position.Y -= 2.5f;
                 Camera.UpdateCamera(bodyComp.GetHitbox().Center);
