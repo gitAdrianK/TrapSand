@@ -115,7 +115,7 @@ namespace TrapSand.Behaviours
                 bodyComp.Velocity.Y = -2.0f;
                 bodyComp.Velocity.Y = Math.Min(0.75f, bodyComp.Velocity.Y);
                 bodyComp.Position.Y -= 2.5f;
-                Camera.UpdateCamera(bodyComp.GetHitbox().Center);
+                Camera.UpdateCamera(new Point(bodyComp.GetHitbox().Left, bodyComp.GetHitbox().Top));
             }
             prevPosition = bodyComp.GetHitbox();
             return true;
