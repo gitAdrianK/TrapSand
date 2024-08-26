@@ -5,6 +5,7 @@ using JumpKing.Level;
 using JumpKing.Player;
 using Microsoft.Xna.Framework;
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using TrapSand.Blocks;
 
@@ -82,28 +83,33 @@ namespace TrapSand.Behaviours
                 return true;
             }
 
-            IBlock block = advCollisionInfo.GetCollidedBlocks().ToList().Find(b => b.GetType() == typeof(BlockTrap));
+            List<IBlock> blocks = advCollisionInfo.GetCollidedBlocks().ToList().FindAll(b => b.GetType() == typeof(BlockTrap));
             Rectangle playerRect = prevPosition;
-            Rectangle blockRect = block.GetRect();
 
-            float bottomDiff = blockRect.Bottom - playerRect.Top;
-            float topDiff = playerRect.Bottom - blockRect.Top;
-            float leftDiff = playerRect.Right - blockRect.Left;
-            float rightDiff = blockRect.Right - playerRect.Left;
+            foreach (IBlock block in blocks)
+            {
+                Rectangle blockRect = block.GetRect();
 
-            if (topDiff < bottomDiff && topDiff < leftDiff && topDiff < rightDiff)
-            {
-                direction = Direction.Top;
-                hasEntered = false;
-            }
-            else
-            {
-                if (!hasEntered)
+                float bottomDiff = blockRect.Bottom - playerRect.Top;
+                float topDiff = playerRect.Bottom - blockRect.Top;
+                float leftDiff = playerRect.Right - blockRect.Left;
+                float rightDiff = blockRect.Right - playerRect.Left;
+
+                if (topDiff < bottomDiff && topDiff < leftDiff && topDiff < rightDiff)
                 {
-                    Game1.instance?.contentManager?.audio?.player?.SandLand?.Play();
+                    direction = Direction.Top;
+                    hasEntered = false;
                 }
-                direction = Direction.Other;
-                hasEntered = true;
+                else
+                {
+                    if (!hasEntered)
+                    {
+                        Game1.instance?.contentManager?.audio?.player?.SandLand?.Play();
+                    }
+                    direction = Direction.Other;
+                    hasEntered = true;
+                    break;
+                }
             }
 
             if (hasEntered)
