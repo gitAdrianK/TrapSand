@@ -45,13 +45,12 @@ namespace TrapSand.Behaviours
 
         public bool AdditionalYCollisionCheck(AdvCollisionInfo info, BehaviourContext behaviourContext)
         {
-            if (info.IsCollidingWith<BlockTrap>() && !hasEntered)
+            if (info.IsCollidingWith<BlockTrap>()
+                && !hasEntered
+                && direction == Direction.Top
+                && behaviourContext.BodyComp.Velocity.Y > 0.0f)
             {
-                if (direction == Direction.Top && behaviourContext.BodyComp.Velocity.Y > 0.0f)
-                {
-                    return true;
-                }
-                return false;
+                return true;
             }
             return false;
         }
@@ -90,12 +89,10 @@ namespace TrapSand.Behaviours
             {
                 Rectangle blockRect = block.GetRect();
 
-                float bottomDiff = blockRect.Bottom - playerRect.Top;
-                float topDiff = playerRect.Bottom - blockRect.Top;
-                float leftDiff = playerRect.Right - blockRect.Left;
-                float rightDiff = blockRect.Right - playerRect.Left;
+                int bottomDiff = blockRect.Bottom - playerRect.Top;
+                int topDiff = playerRect.Bottom - blockRect.Top;
 
-                if (topDiff < bottomDiff && topDiff < leftDiff && topDiff < rightDiff)
+                if (topDiff < bottomDiff)
                 {
                     direction = Direction.Top;
                     hasEntered = false;
