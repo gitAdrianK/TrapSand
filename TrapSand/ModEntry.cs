@@ -1,4 +1,5 @@
 ﻿using EntityComponent;
+using JumpKing;
 using JumpKing.Level;
 using JumpKing.Mods;
 using JumpKing.Player;
@@ -28,8 +29,16 @@ namespace TrapSand
                 return;
             }
 
-            BehaviourTrap behaviourTrap = new BehaviourTrap();
-            player.m_body.RegisterBlockBehaviour(typeof(BlockTrap), behaviourTrap);
+            BehaviourTrapDown behaviourTrapDown = new BehaviourTrapDown();
+            player.m_body.RegisterBlockBehaviour(typeof(BlockTrapDown), behaviourTrapDown);
+
+            BehaviourTrapUp behaviourTrapUp = new BehaviourTrapUp();
+            player.m_body.RegisterBlockBehaviour(typeof(BlockTrapUp), behaviourTrapUp);
+
+            if (Game1.instance.contentManager?.audio?.player?.SandLand != null)
+            {
+                player.RegisterLandSound<BlockTrapDown>(Game1.instance.contentManager.audio.player.SandLand);
+            }
         }
     }
 }

@@ -67,8 +67,10 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Behaviours\BehaviourTrap.cs" />
-    <Compile Include="Blocks\BlockTrap.cs" />
+    <Compile Include="Behaviours\BehaviourTrapDown.cs" />
+    <Compile Include="Behaviours\BehaviourTrapUp.cs" />
+    <Compile Include="Blocks\BlockTrapDown.cs" />
+    <Compile Include="Blocks\BlockTrapUp.cs" />
     <Compile Include="Factories\FactoryTrap.cs" />
     <Compile Include="ModEntry.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

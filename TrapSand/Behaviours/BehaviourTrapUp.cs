@@ -11,7 +11,7 @@ using TrapSand.Blocks;
 
 namespace TrapSand.Behaviours
 {
-    public class BehaviourTrap : IBlockBehaviour
+    public class BehaviourTrapUp : IBlockBehaviour
     {
         private enum Direction
         {
@@ -45,7 +45,7 @@ namespace TrapSand.Behaviours
 
         public bool AdditionalYCollisionCheck(AdvCollisionInfo info, BehaviourContext behaviourContext)
         {
-            if (info.IsCollidingWith<BlockTrap>()
+            if (info.IsCollidingWith<BlockTrapUp>()
                 && !hasEntered
                 && direction == Direction.Top
                 && behaviourContext.BodyComp.Velocity.Y > 0.0f)
@@ -67,7 +67,7 @@ namespace TrapSand.Behaviours
             AdvCollisionInfo advCollisionInfo = behaviourContext.CollisionInfo.PreResolutionCollisionInfo;
             BodyComp bodyComp = behaviourContext.BodyComp;
 
-            IsPlayerOnBlock = advCollisionInfo.IsCollidingWith<BlockTrap>();
+            IsPlayerOnBlock = advCollisionInfo.IsCollidingWith<BlockTrapUp>();
 
             if (!IsPlayerOnBlock)
             {
@@ -82,7 +82,7 @@ namespace TrapSand.Behaviours
                 return true;
             }
 
-            List<IBlock> blocks = advCollisionInfo.GetCollidedBlocks().ToList().FindAll(b => b.GetType() == typeof(BlockTrap));
+            List<IBlock> blocks = advCollisionInfo.GetCollidedBlocks().ToList().FindAll(b => b.GetType() == typeof(BlockTrapUp));
             Rectangle playerRect = prevPosition;
 
             foreach (IBlock block in blocks)

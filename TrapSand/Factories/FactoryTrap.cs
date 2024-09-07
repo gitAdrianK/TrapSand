@@ -12,7 +12,8 @@ namespace TrapSand.Factories
     public class FactoryTrap : IBlockFactory
     {
         private static readonly HashSet<Color> supportedBlockCodes = new HashSet<Color> {
-            BlockTrap.BLOCKCODE_TRAP,
+            BlockTrapDown.BLOCKCODE_TRAP_DOWN,
+            BlockTrapUp.BLOCKCODE_TRAP_UP,
         };
 
         public bool CanMakeBlock(Color blockCode, Level level)
@@ -24,7 +25,8 @@ namespace TrapSand.Factories
         {
             switch (blockCode)
             {
-                case var _ when blockCode == BlockTrap.BLOCKCODE_TRAP:
+                case var _ when blockCode == BlockTrapDown.BLOCKCODE_TRAP_DOWN:
+                case var _ when blockCode == BlockTrapUp.BLOCKCODE_TRAP_UP:
                     return true;
             }
             return false;
@@ -34,8 +36,10 @@ namespace TrapSand.Factories
         {
             switch (blockCode)
             {
-                case var _ when blockCode == BlockTrap.BLOCKCODE_TRAP:
-                    return new BlockTrap(blockRect);
+                case var _ when blockCode == BlockTrapDown.BLOCKCODE_TRAP_DOWN:
+                    return new BlockTrapDown(blockRect);
+                case var _ when blockCode == BlockTrapUp.BLOCKCODE_TRAP_UP:
+                    return new BlockTrapUp(blockRect);
                 default:
                     throw new InvalidOperationException($"{typeof(FactoryTrap).Name} is unable to create a block of Color code ({blockCode.R}, {blockCode.G}, {blockCode.B})");
             }

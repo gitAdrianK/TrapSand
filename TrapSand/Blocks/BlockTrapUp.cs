@@ -3,20 +3,20 @@ using Microsoft.Xna.Framework;
 
 namespace TrapSand.Blocks
 {
-    public class BlockTrap : IBlock, IBlockDebugColor
+    public class BlockTrapUp : IBlock, IBlockDebugColor
     {
-        public static readonly Color BLOCKCODE_TRAP = new Color(255, 69, 69);
+        public static readonly Color BLOCKCODE_TRAP_UP = new Color(255, 69, 69);
 
         private readonly Rectangle collider;
 
-        public BlockTrap(Rectangle collider)
+        public BlockTrapUp(Rectangle collider)
         {
             this.collider = collider;
         }
 
         public Color DebugColor
         {
-            get { return BLOCKCODE_TRAP; }
+            get { return BLOCKCODE_TRAP_UP; }
         }
 
         public Rectangle GetRect()
