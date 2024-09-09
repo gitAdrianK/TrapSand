@@ -1,5 +1,4 @@
 ﻿using EntityComponent;
-using JumpKing;
 using JumpKing.Level;
 using JumpKing.Mods;
 using JumpKing.Player;
@@ -34,11 +33,6 @@ namespace TrapSand
 
             BehaviourTrapUp behaviourTrapUp = new BehaviourTrapUp();
             player.m_body.RegisterBlockBehaviour(typeof(BlockTrapUp), behaviourTrapUp);
-
-            if (Game1.instance.contentManager?.audio?.player?.SandLand != null)
-            {
-                player.RegisterLandSound<BlockTrapDown>(Game1.instance.contentManager.audio.player.SandLand);
-            }
         }
     }
 }

@@ -4,16 +4,19 @@ using JumpKing.BodyCompBehaviours;
 using JumpKing.Level;
 using JumpKing.Player;
 using Microsoft.Xna.Framework;
-using System;
+using System.Collections.Generic;
 using TrapSand.Blocks;
 
 namespace TrapSand.Behaviours
 {
     public class BehaviourTrapDown : IBlockBehaviour
     {
-        public float BlockPriority => 2.0f;
+        public float BlockPriority => 0.5f;
 
         public bool IsPlayerOnBlock { get; set; }
+
+        private bool hasEntered = false;
+        private bool hasPlayed = false;
 
         public float ModifyXVelocity(float inputXVelocity, BehaviourContext behaviourContext)
         {
@@ -32,11 +35,29 @@ namespace TrapSand.Behaviours
 
         public bool AdditionalYCollisionCheck(AdvCollisionInfo info, BehaviourContext behaviourContext)
         {
-            if (info.IsCollidingWith<BlockTrapDown>() && !IsPlayerOnBlock)
+            if (IsPlayerOnBlock
+                || !info.IsCollidingWith<BlockTrapDown>())
             {
-                return behaviourContext.BodyComp.Velocity.Y < 0.0f;
+                hasEntered = false;
+                return false;
             }
 
+            Rectangle hitbox = behaviourContext.BodyComp.GetHitbox();
+            IReadOnlyCollection<IBlock> blocks = info.GetCollidedBlocks<BlockTrapDown>();
+            foreach (IBlock block in blocks)
+            {
+                Rectangle blockRect = block.GetRect();
+                int top = blockRect.Bottom - hitbox.Top;
+                int bottom = hitbox.Bottom - blockRect.Top;
+                int left = blockRect.Right - hitbox.Left;
+                int right = hitbox.Right - blockRect.Left;
+                if (top < bottom && top < left && top < right)
+                {
+                    hasEntered = false;
+                    return true;
+                }
+            }
+            hasEntered = true;
             return false;
         }
 
@@ -48,19 +69,25 @@ namespace TrapSand.Behaviours
             }
 
             AdvCollisionInfo advCollisionInfo = behaviourContext.CollisionInfo.PreResolutionCollisionInfo;
-            BodyComp bodyComp = behaviourContext.BodyComp;
-
             IsPlayerOnBlock = advCollisionInfo.IsCollidingWith<BlockTrapDown>();
-
             if (!IsPlayerOnBlock)
             {
+                hasPlayed = false;
                 return true;
             }
 
-            bodyComp.Velocity.X *= 0.25f;
-            bodyComp.Velocity.Y = 4.5f;
-            bodyComp.Velocity.Y = Math.Max(0.75f, bodyComp.Velocity.Y);
-            Camera.UpdateCamera(new Point(bodyComp.GetHitbox().Left, bodyComp.GetHitbox().Bottom));
+            if (hasEntered)
+            {
+                if (!hasPlayed)
+                {
+                    Game1.instance?.contentManager?.audio?.player?.SandLand?.Play();
+                }
+                hasPlayed = true;
+
+                BodyComp bodyComp = behaviourContext.BodyComp;
+                bodyComp.Velocity.X *= 0.25f;
+                bodyComp.Velocity.Y = 3.5f;
+            }
 
             return true;
         }
