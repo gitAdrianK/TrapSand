@@ -1,14 +1,12 @@
-﻿using JumpKing;
-using JumpKing.API;
-using JumpKing.BodyCompBehaviours;
-using JumpKing.Level;
-using JumpKing.Player;
-using Microsoft.Xna.Framework;
-using System.Collections.Generic;
-using TrapSand.Blocks;
-
 namespace TrapSand.Behaviours
 {
+    using System.Collections.Generic;
+    using JumpKing;
+    using JumpKing.API;
+    using JumpKing.BodyCompBehaviours;
+    using JumpKing.Level;
+    using TrapSand.Blocks;
+
     public class BehaviourTrapDown : IBlockBehaviour
     {
         public float BlockPriority => 0.5f;
@@ -18,46 +16,39 @@ namespace TrapSand.Behaviours
         private bool hasEntered = false;
         private bool hasPlayed = false;
 
-        public float ModifyXVelocity(float inputXVelocity, BehaviourContext behaviourContext)
-        {
-            return inputXVelocity;
-        }
+        public float ModifyXVelocity(float inputXVelocity, BehaviourContext behaviourContext) => inputXVelocity;
 
-        public float ModifyYVelocity(float inputYVelocity, BehaviourContext behaviourContext)
-        {
-            return inputYVelocity;
-        }
+        public float ModifyYVelocity(float inputYVelocity, BehaviourContext behaviourContext) => inputYVelocity;
 
-        public bool AdditionalXCollisionCheck(AdvCollisionInfo info, BehaviourContext behaviourContext)
-        {
-            return false;
-        }
+        public float ModifyGravity(float inputGravity, BehaviourContext behaviourContext) => inputGravity;
+
+        public bool AdditionalXCollisionCheck(AdvCollisionInfo info, BehaviourContext behaviourContext) => false;
 
         public bool AdditionalYCollisionCheck(AdvCollisionInfo info, BehaviourContext behaviourContext)
         {
-            if (IsPlayerOnBlock
+            if (this.IsPlayerOnBlock
                 || !info.IsCollidingWith<BlockTrapDown>())
             {
-                hasEntered = false;
+                this.hasEntered = false;
                 return false;
             }
 
-            Rectangle hitbox = behaviourContext.BodyComp.GetHitbox();
+            var hitbox = behaviourContext.BodyComp.GetHitbox();
             IReadOnlyCollection<IBlock> blocks = info.GetCollidedBlocks<BlockTrapDown>();
-            foreach (IBlock block in blocks)
+            foreach (var block in blocks)
             {
-                Rectangle blockRect = block.GetRect();
-                int top = blockRect.Bottom - hitbox.Top;
-                int bottom = hitbox.Bottom - blockRect.Top;
-                int left = blockRect.Right - hitbox.Left;
-                int right = hitbox.Right - blockRect.Left;
+                var blockRect = block.GetRect();
+                var top = blockRect.Bottom - hitbox.Top;
+                var bottom = hitbox.Bottom - blockRect.Top;
+                var left = blockRect.Right - hitbox.Left;
+                var right = hitbox.Right - blockRect.Left;
                 if (top < bottom && top < left && top < right)
                 {
-                    hasEntered = false;
+                    this.hasEntered = false;
                     return true;
                 }
             }
-            hasEntered = true;
+            this.hasEntered = true;
             return false;
         }
 
@@ -68,33 +59,28 @@ namespace TrapSand.Behaviours
                 return true;
             }
 
-            AdvCollisionInfo advCollisionInfo = behaviourContext.CollisionInfo.PreResolutionCollisionInfo;
-            IsPlayerOnBlock = advCollisionInfo.IsCollidingWith<BlockTrapDown>();
-            if (!IsPlayerOnBlock)
+            var advCollisionInfo = behaviourContext.CollisionInfo.PreResolutionCollisionInfo;
+            this.IsPlayerOnBlock = advCollisionInfo.IsCollidingWith<BlockTrapDown>();
+            if (!this.IsPlayerOnBlock)
             {
-                hasPlayed = false;
+                this.hasPlayed = false;
                 return true;
             }
 
-            if (hasEntered)
+            if (this.hasEntered)
             {
-                if (!hasPlayed)
+                if (!this.hasPlayed)
                 {
                     Game1.instance?.contentManager?.audio?.player?.SandLand?.Play();
                 }
-                hasPlayed = true;
+                this.hasPlayed = true;
 
-                BodyComp bodyComp = behaviourContext.BodyComp;
+                var bodyComp = behaviourContext.BodyComp;
                 bodyComp.Velocity.X *= 0.25f;
                 bodyComp.Velocity.Y = 3.5f;
             }
 
             return true;
-        }
-
-        public float ModifyGravity(float inputGravity, BehaviourContext behaviourContext)
-        {
-            return inputGravity;
         }
     }
 }

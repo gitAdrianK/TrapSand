@@ -1,16 +1,14 @@
-﻿using JumpKing;
-using JumpKing.API;
-using JumpKing.BodyCompBehaviours;
-using JumpKing.Level;
-using JumpKing.Player;
-using Microsoft.Xna.Framework;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using TrapSand.Blocks;
-
 namespace TrapSand.Behaviours
 {
+    using System;
+    using System.Linq;
+    using JumpKing;
+    using JumpKing.API;
+    using JumpKing.BodyCompBehaviours;
+    using JumpKing.Level;
+    using Microsoft.Xna.Framework;
+    using TrapSand.Blocks;
+
     public class BehaviourTrapUp : IBlockBehaviour
     {
         private enum Direction
@@ -28,26 +26,19 @@ namespace TrapSand.Behaviours
         private Rectangle prevPosition = Rectangle.Empty;
         private Direction direction = Direction.None;
 
-        public float ModifyXVelocity(float inputXVelocity, BehaviourContext behaviourContext)
-        {
-            return inputXVelocity;
-        }
+        public float ModifyXVelocity(float inputXVelocity, BehaviourContext behaviourContext) => inputXVelocity;
 
-        public float ModifyYVelocity(float inputYVelocity, BehaviourContext behaviourContext)
-        {
-            return inputYVelocity;
-        }
+        public float ModifyYVelocity(float inputYVelocity, BehaviourContext behaviourContext) => inputYVelocity;
 
-        public bool AdditionalXCollisionCheck(AdvCollisionInfo info, BehaviourContext behaviourContext)
-        {
-            return false;
-        }
+        public float ModifyGravity(float inputGravity, BehaviourContext behaviourContext) => inputGravity;
+
+        public bool AdditionalXCollisionCheck(AdvCollisionInfo info, BehaviourContext behaviourContext) => false;
 
         public bool AdditionalYCollisionCheck(AdvCollisionInfo info, BehaviourContext behaviourContext)
         {
             if (info.IsCollidingWith<BlockTrapUp>()
-                && !hasEntered
-                && direction == Direction.Top
+                && !this.hasEntered
+                && this.direction == Direction.Top
                 && behaviourContext.BodyComp.Velocity.Y > 0.0f)
             {
                 return true;
@@ -59,57 +50,57 @@ namespace TrapSand.Behaviours
         {
             if (behaviourContext?.CollisionInfo?.PreResolutionCollisionInfo == null)
             {
-                direction = Direction.None;
-                prevPosition = Rectangle.Empty;
+                this.direction = Direction.None;
+                this.prevPosition = Rectangle.Empty;
                 return true;
             }
 
-            AdvCollisionInfo advCollisionInfo = behaviourContext.CollisionInfo.PreResolutionCollisionInfo;
-            BodyComp bodyComp = behaviourContext.BodyComp;
+            var advCollisionInfo = behaviourContext.CollisionInfo.PreResolutionCollisionInfo;
+            var bodyComp = behaviourContext.BodyComp;
 
-            IsPlayerOnBlock = advCollisionInfo.IsCollidingWith<BlockTrapUp>();
+            this.IsPlayerOnBlock = advCollisionInfo.IsCollidingWith<BlockTrapUp>();
 
-            if (!IsPlayerOnBlock)
+            if (!this.IsPlayerOnBlock)
             {
-                direction = Direction.None;
-                prevPosition = bodyComp.GetHitbox();
+                this.direction = Direction.None;
+                this.prevPosition = bodyComp.GetHitbox();
                 return true;
             }
 
-            if (direction == Direction.Top)
+            if (this.direction == Direction.Top)
             {
-                prevPosition = bodyComp.GetHitbox();
+                this.prevPosition = bodyComp.GetHitbox();
                 return true;
             }
 
-            List<IBlock> blocks = advCollisionInfo.GetCollidedBlocks().ToList().FindAll(b => b.GetType() == typeof(BlockTrapUp));
-            Rectangle playerRect = prevPosition;
+            var blocks = advCollisionInfo.GetCollidedBlocks().ToList().FindAll(b => b.GetType() == typeof(BlockTrapUp));
+            var playerRect = this.prevPosition;
 
-            foreach (IBlock block in blocks)
+            foreach (var block in blocks)
             {
-                Rectangle blockRect = block.GetRect();
+                var blockRect = block.GetRect();
 
-                int bottomDiff = blockRect.Bottom - playerRect.Top;
-                int topDiff = playerRect.Bottom - blockRect.Top;
+                var bottomDiff = blockRect.Bottom - playerRect.Top;
+                var topDiff = playerRect.Bottom - blockRect.Top;
 
                 if (topDiff < bottomDiff)
                 {
-                    direction = Direction.Top;
-                    hasEntered = false;
+                    this.direction = Direction.Top;
+                    this.hasEntered = false;
                 }
                 else
                 {
-                    if (!hasEntered)
+                    if (!this.hasEntered)
                     {
                         Game1.instance?.contentManager?.audio?.player?.SandLand?.Play();
                     }
-                    direction = Direction.Other;
-                    hasEntered = true;
+                    this.direction = Direction.Other;
+                    this.hasEntered = true;
                     break;
                 }
             }
 
-            if (hasEntered)
+            if (this.hasEntered)
             {
                 bodyComp.Velocity.X *= 0.25f;
                 bodyComp.Velocity.Y = -2.0f;
@@ -117,13 +108,8 @@ namespace TrapSand.Behaviours
                 bodyComp.Position.Y -= 2.5f;
                 Camera.UpdateCamera(new Point(bodyComp.GetHitbox().Left, bodyComp.GetHitbox().Top));
             }
-            prevPosition = bodyComp.GetHitbox();
+            this.prevPosition = bodyComp.GetHitbox();
             return true;
-        }
-
-        public float ModifyGravity(float inputGravity, BehaviourContext behaviourContext)
-        {
-            return inputGravity;
         }
     }
 }
