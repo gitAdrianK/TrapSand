@@ -11,6 +11,8 @@ namespace TrapSand.Factories
 
     public class FactoryTrap : IBlockFactory
     {
+        public static ulong LastUsedMapId { get; private set; } = ulong.MaxValue;
+
         private static readonly HashSet<Color> SupportedBlockCodes = new HashSet<Color> {
             BlockTrapDown.BLOCKCODE_TRAP_DOWN,
             BlockTrapUp.BLOCKCODE_TRAP_UP,
@@ -33,6 +35,10 @@ namespace TrapSand.Factories
 
         public IBlock GetBlock(Color blockCode, Rectangle blockRect, Level level, LevelTexture textureSrc, int currentScreen, int x, int y)
         {
+            if (LastUsedMapId != level.ID && SupportedBlockCodes.Contains(blockCode))
+            {
+                LastUsedMapId = level.ID;
+            }
             switch (blockCode)
             {
                 case var _ when blockCode == BlockTrapDown.BLOCKCODE_TRAP_DOWN:
