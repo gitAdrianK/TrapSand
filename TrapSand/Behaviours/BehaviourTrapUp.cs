@@ -73,7 +73,7 @@ namespace TrapSand.Behaviours
                 return true;
             }
 
-            var blocks = advCollisionInfo.GetCollidedBlocks().ToList().FindAll(b => b.GetType() == typeof(BlockTrapUp));
+            var blocks = advCollisionInfo.GetCollidedBlocks().Where(b => b.GetType() == typeof(BlockTrapUp));
             var playerRect = this.prevPosition;
 
             foreach (var block in blocks)
