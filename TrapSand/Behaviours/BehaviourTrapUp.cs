@@ -18,6 +18,8 @@ namespace TrapSand.Behaviours
             Other,
         }
 
+        private bool IsMuted { get; }
+
         public float BlockPriority => 2.0f;
 
         public bool IsPlayerOnBlock { get; set; }
@@ -25,6 +27,8 @@ namespace TrapSand.Behaviours
         private bool hasEntered;
         private Rectangle prevPosition = Rectangle.Empty;
         private Direction direction = Direction.None;
+
+        public BehaviourTrapUp(bool isMuted) => this.IsMuted = isMuted;
 
         public float ModifyXVelocity(float inputXVelocity, BehaviourContext behaviourContext) => inputXVelocity;
 
@@ -90,7 +94,7 @@ namespace TrapSand.Behaviours
                 }
                 else
                 {
-                    if (!this.hasEntered)
+                    if (!this.hasEntered && !this.IsMuted)
                     {
                         Game1.instance?.contentManager?.audio?.player?.SandLand?.Play();
                     }

@@ -18,12 +18,9 @@ namespace TrapSand
         [OnLevelStart]
         public static void OnLevelStart()
         {
-            var contentManager = Game1.instance.contentManager;
-            if (contentManager.level == null)
-            {
-                return;
-            }
-            if (contentManager.level.ID != FactoryTrap.LastUsedMapId)
+            var level = Game1.instance.contentManager.level;
+            if (level == null
+                || level.ID != FactoryTrap.LastUsedMapId)
             {
                 return;
             }
@@ -36,8 +33,26 @@ namespace TrapSand
                 return;
             }
 
-            _ = player.m_body.RegisterBlockBehaviour(typeof(BlockTrapDown), new BehaviourTrapDown());
-            _ = player.m_body.RegisterBlockBehaviour(typeof(BlockTrapUp), new BehaviourTrapUp());
+            var muteSandUp = false;
+            var muteSandDown = false;
+            foreach (var tag in level.Info.Tags)
+            {
+                if (tag == "MuteTrapSandUp")
+                {
+                    muteSandUp = true;
+                }
+                if (tag == "MuteTrapSandDown")
+                {
+                    muteSandDown = true;
+                }
+                if (muteSandDown && muteSandUp)
+                {
+                    break;
+                }
+            }
+
+            _ = player.m_body.RegisterBlockBehaviour(typeof(BlockTrapDown), new BehaviourTrapDown(muteSandDown));
+            _ = player.m_body.RegisterBlockBehaviour(typeof(BlockTrapUp), new BehaviourTrapUp(muteSandUp));
         }
     }
 }

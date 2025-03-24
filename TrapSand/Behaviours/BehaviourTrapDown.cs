@@ -9,12 +9,16 @@ namespace TrapSand.Behaviours
 
     public class BehaviourTrapDown : IBlockBehaviour
     {
+        private bool IsMuted { get; }
+
         public float BlockPriority => 0.5f;
 
         public bool IsPlayerOnBlock { get; set; }
 
         private bool hasEntered = false;
         private bool hasPlayed = false;
+
+        public BehaviourTrapDown(bool isMuted) => this.IsMuted = isMuted;
 
         public float ModifyXVelocity(float inputXVelocity, BehaviourContext behaviourContext) => inputXVelocity;
 
@@ -69,7 +73,7 @@ namespace TrapSand.Behaviours
 
             if (this.hasEntered)
             {
-                if (!this.hasPlayed)
+                if (!this.hasPlayed && !this.IsMuted)
                 {
                     Game1.instance?.contentManager?.audio?.player?.SandLand?.Play();
                 }
