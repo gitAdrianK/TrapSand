@@ -1,6 +1,5 @@
 namespace TrapSand.Behaviours
 {
-    using System.Collections.Generic;
     using JumpKing;
     using JumpKing.API;
     using JumpKing.BodyCompBehaviours;
@@ -9,16 +8,19 @@ namespace TrapSand.Behaviours
 
     public class BehaviourTrapDown : IBlockBehaviour
     {
+        private ICollisionQuery CollisionQuery { get; }
         private bool IsMuted { get; }
+        private bool HasPlayed { get; set; }
 
         public float BlockPriority => 0.5f;
 
         public bool IsPlayerOnBlock { get; set; }
 
-        private bool hasEntered = false;
-        private bool hasPlayed = false;
-
-        public BehaviourTrapDown(bool isMuted) => this.IsMuted = isMuted;
+        public BehaviourTrapDown(ICollisionQuery collisionQuery, bool isMuted)
+        {
+            this.CollisionQuery = collisionQuery;
+            this.IsMuted = isMuted;
+        }
 
         public float ModifyXVelocity(float inputXVelocity, BehaviourContext behaviourContext) => inputXVelocity;
 
@@ -30,59 +32,47 @@ namespace TrapSand.Behaviours
 
         public bool AdditionalYCollisionCheck(AdvCollisionInfo info, BehaviourContext behaviourContext)
         {
-            if (this.IsPlayerOnBlock
-                || !info.IsCollidingWith<BlockTrapDown>())
+            if (info.IsCollidingWith<BlockTrapDown>() && !this.IsPlayerOnBlock)
             {
-                this.hasEntered = false;
-                return false;
-            }
-
-            var hitbox = behaviourContext.BodyComp.GetHitbox();
-            IReadOnlyCollection<IBlock> blocks = info.GetCollidedBlocks<BlockTrapDown>();
-            foreach (var block in blocks)
-            {
-                var blockRect = block.GetRect();
-                var top = blockRect.Bottom - hitbox.Top;
-                var bottom = hitbox.Bottom - blockRect.Top;
-                var left = blockRect.Right - hitbox.Left;
-                var right = hitbox.Right - blockRect.Left;
-                if (top < bottom && top < left && top < right)
+                var bodyComp = behaviourContext.BodyComp;
+                var playerPosition = bodyComp.GetHitbox();
+                foreach (var block in info.GetCollidedBlocks<BlockTrapUp>())
                 {
-                    this.hasEntered = false;
-                    return true;
+                    var blockRect = block.GetRect();
+                    // See the other behaviour for why magic number.
+                    if ((playerPosition.Top - blockRect.Bottom) >= -3)
+                    {
+                        continue;
+                    }
+                    return false;
                 }
+                return bodyComp.Velocity.Y < 0;
             }
-            this.hasEntered = true;
             return false;
         }
 
         public bool ExecuteBlockBehaviour(BehaviourContext behaviourContext)
         {
-            if (behaviourContext?.CollisionInfo?.PreResolutionCollisionInfo == null)
-            {
-                return true;
-            }
-
-            var advCollisionInfo = behaviourContext.CollisionInfo.PreResolutionCollisionInfo;
-            this.IsPlayerOnBlock = advCollisionInfo.IsCollidingWith<BlockTrapDown>();
+            var bodyComp = behaviourContext.BodyComp;
+            var hitbox = bodyComp.GetHitbox();
+            _ = this.CollisionQuery.CheckCollision(hitbox, out var _, out AdvCollisionInfo info);
+            this.IsPlayerOnBlock = info.IsCollidingWith<BlockTrapDown>();
             if (!this.IsPlayerOnBlock)
             {
-                this.hasPlayed = false;
+                this.HasPlayed = false;
                 return true;
             }
 
-            if (this.hasEntered)
+            if (!this.IsMuted && !this.HasPlayed)
             {
-                if (!this.hasPlayed && !this.IsMuted)
-                {
-                    Game1.instance?.contentManager?.audio?.player?.SandLand?.Play();
-                }
-                this.hasPlayed = true;
-
-                var bodyComp = behaviourContext.BodyComp;
-                bodyComp.Velocity.X *= 0.25f;
-                bodyComp.Velocity.Y = 3.5f;
+                Game1.instance?.contentManager?.audio?.player?.SandLand?.Play();
+                this.HasPlayed = true;
             }
+
+            bodyComp.Velocity.X *= 0.25f;
+            bodyComp.Velocity.Y = 3.5f;
+
+            Camera.UpdateCamera(hitbox.Location);
 
             return true;
         }

@@ -1,34 +1,27 @@
 namespace TrapSand.Behaviours
 {
     using System;
-    using System.Linq;
     using JumpKing;
     using JumpKing.API;
     using JumpKing.BodyCompBehaviours;
     using JumpKing.Level;
-    using Microsoft.Xna.Framework;
     using TrapSand.Blocks;
 
     public class BehaviourTrapUp : IBlockBehaviour
     {
-        private enum Direction
-        {
-            None,
-            Top,
-            Other,
-        }
-
+        private ICollisionQuery CollisionQuery { get; }
         private bool IsMuted { get; }
+        private bool HasPlayed { get; set; }
 
         public float BlockPriority => 2.0f;
 
         public bool IsPlayerOnBlock { get; set; }
 
-        private bool hasEntered;
-        private Rectangle prevPosition = Rectangle.Empty;
-        private Direction direction = Direction.None;
-
-        public BehaviourTrapUp(bool isMuted) => this.IsMuted = isMuted;
+        public BehaviourTrapUp(ICollisionQuery collisionQuery, bool isMuted)
+        {
+            this.CollisionQuery = collisionQuery;
+            this.IsMuted = isMuted;
+        }
 
         public float ModifyXVelocity(float inputXVelocity, BehaviourContext behaviourContext) => inputXVelocity;
 
@@ -40,79 +33,51 @@ namespace TrapSand.Behaviours
 
         public bool AdditionalYCollisionCheck(AdvCollisionInfo info, BehaviourContext behaviourContext)
         {
-            if (info.IsCollidingWith<BlockTrapUp>()
-                && !this.hasEntered
-                && this.direction == Direction.Top
-                && behaviourContext.BodyComp.Velocity.Y > 0.0f)
+            if (info.IsCollidingWith<BlockTrapUp>() && !this.IsPlayerOnBlock)
             {
-                return true;
+                var playerPosition = behaviourContext.BodyComp.GetHitbox();
+                foreach (var block in info.GetCollidedBlocks<BlockTrapUp>())
+                {
+                    var blockRect = block.GetRect();
+                    // I have absolutely NO clue why it is -1/-2/-3,
+                    // standing on top is a lot of -2, sometimes -1, landing from a jump can result in -3,
+                    // maybe depending on player speed it might be -4 at some point.
+                    if ((blockRect.Top - playerPosition.Bottom) >= -3)
+                    {
+                        continue;
+                    }
+                    return false;
+                }
+                return behaviourContext.BodyComp.Velocity.Y >= 0;
             }
             return false;
         }
 
         public bool ExecuteBlockBehaviour(BehaviourContext behaviourContext)
         {
-            if (behaviourContext?.CollisionInfo?.PreResolutionCollisionInfo == null)
-            {
-                this.direction = Direction.None;
-                this.prevPosition = Rectangle.Empty;
-                return true;
-            }
-
-            var advCollisionInfo = behaviourContext.CollisionInfo.PreResolutionCollisionInfo;
             var bodyComp = behaviourContext.BodyComp;
-
-            this.IsPlayerOnBlock = advCollisionInfo.IsCollidingWith<BlockTrapUp>();
-
+            var hitbox = bodyComp.GetHitbox();
+            _ = this.CollisionQuery.CheckCollision(hitbox, out var _, out AdvCollisionInfo info);
+            this.IsPlayerOnBlock = info.IsCollidingWith<BlockTrapUp>();
             if (!this.IsPlayerOnBlock)
             {
-                this.direction = Direction.None;
-                this.prevPosition = bodyComp.GetHitbox();
+                this.HasPlayed = false;
                 return true;
             }
 
-            if (this.direction == Direction.Top)
+            if (!this.IsMuted && !this.HasPlayed)
             {
-                this.prevPosition = bodyComp.GetHitbox();
-                return true;
+                Game1.instance?.contentManager?.audio?.player?.SandLand?.Play();
+                this.HasPlayed = true;
             }
 
-            var blocks = advCollisionInfo.GetCollidedBlocks().Where(b => b.GetType() == typeof(BlockTrapUp));
-            var playerRect = this.prevPosition;
+            bodyComp.Velocity.X *= 0.25f;
+            bodyComp.Velocity.Y = -2.0f;
+            bodyComp.Velocity.Y = Math.Min(0.75f, bodyComp.Velocity.Y);
+            bodyComp.Position.Y -= 2.5f;
 
-            foreach (var block in blocks)
-            {
-                var blockRect = block.GetRect();
+            Camera.UpdateCamera(hitbox.Location);
 
-                var bottomDiff = blockRect.Bottom - playerRect.Top;
-                var topDiff = playerRect.Bottom - blockRect.Top;
-
-                if (topDiff < bottomDiff)
-                {
-                    this.direction = Direction.Top;
-                    this.hasEntered = false;
-                }
-                else
-                {
-                    if (!this.hasEntered && !this.IsMuted)
-                    {
-                        Game1.instance?.contentManager?.audio?.player?.SandLand?.Play();
-                    }
-                    this.direction = Direction.Other;
-                    this.hasEntered = true;
-                    break;
-                }
-            }
-
-            if (this.hasEntered)
-            {
-                bodyComp.Velocity.X *= 0.25f;
-                bodyComp.Velocity.Y = -2.0f;
-                bodyComp.Velocity.Y = Math.Min(0.75f, bodyComp.Velocity.Y);
-                bodyComp.Position.Y -= 2.5f;
-                Camera.UpdateCamera(new Point(bodyComp.GetHitbox().Left, bodyComp.GetHitbox().Top));
-            }
-            this.prevPosition = bodyComp.GetHitbox();
             return true;
         }
     }
