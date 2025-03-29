@@ -36,7 +36,7 @@ namespace TrapSand.Behaviours
             {
                 var bodyComp = behaviourContext.BodyComp;
                 var playerPosition = bodyComp.GetHitbox();
-                foreach (var block in info.GetCollidedBlocks<BlockTrapUp>())
+                foreach (var block in info.GetCollidedBlocks<BlockTrapDown>())
                 {
                     var blockRect = block.GetRect();
                     // See the other behaviour for why magic number.

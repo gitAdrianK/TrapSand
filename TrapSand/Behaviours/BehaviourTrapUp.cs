@@ -35,20 +35,22 @@ namespace TrapSand.Behaviours
         {
             if (info.IsCollidingWith<BlockTrapUp>() && !this.IsPlayerOnBlock)
             {
-                var playerPosition = behaviourContext.BodyComp.GetHitbox();
+                var bodyComp = behaviourContext.BodyComp;
+                var playerPosition = bodyComp.GetHitbox();
                 foreach (var block in info.GetCollidedBlocks<BlockTrapUp>())
                 {
                     var blockRect = block.GetRect();
                     // I have absolutely NO clue why it is -1/-2/-3,
                     // standing on top is a lot of -2, sometimes -1, landing from a jump can result in -3,
                     // maybe depending on player speed it might be -4 at some point.
-                    if ((blockRect.Top - playerPosition.Bottom) >= -3)
+                    // Addendum: Yes, depending on fallspeed it can be more than -3.
+                    if ((blockRect.Top - playerPosition.Bottom) >= -5)
                     {
                         continue;
                     }
                     return false;
                 }
-                return behaviourContext.BodyComp.Velocity.Y >= 0;
+                return bodyComp.Velocity.Y >= 0;
             }
             return false;
         }

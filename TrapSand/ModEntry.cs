@@ -13,11 +13,7 @@ namespace TrapSand
     public static class ModEntry
     {
         [BeforeLevelLoad]
-        public static void BeforeLevelLoad()
-        {
-            //Debugger.Launch();
-            LevelManager.RegisterBlockFactory(new FactoryTrap());
-        }
+        public static void BeforeLevelLoad() => LevelManager.RegisterBlockFactory(new FactoryTrap());
 
         [OnLevelStart]
         public static void OnLevelStart()
@@ -55,16 +51,21 @@ namespace TrapSand
                 }
             }
 
+            // Functions as a ICollisionQuery.
+            var levelManager = LevelManager.Instance;
+
             if (level.ID == FactoryTrap.LastUsedMapIdDown)
             {
-                _ = player.m_body.RegisterBlockBehaviour(typeof(BlockTrapDown), new BehaviourTrapDown(muteSandDown));
+                _ = player.m_body.RegisterBlockBehaviour(
+                    typeof(BlockTrapDown),
+                    new BehaviourTrapDown(levelManager, muteSandDown));
             }
 
             if (level.ID == FactoryTrap.LastUsedMapIdUp)
             {
                 _ = player.m_body.RegisterBlockBehaviour(
                     typeof(BlockTrapUp),
-                    new BehaviourTrapUp(LevelManager.Instance, muteSandUp));
+                    new BehaviourTrapUp(levelManager, muteSandUp));
             }
         }
     }
